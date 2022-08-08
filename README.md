@@ -1,15 +1,3 @@
 # token-distributor
 
-To install dependencies:
-
-```bash
-bun install
-```
-
-To run:
-
-```bash
-bun run index.ts
-```
-
-This project was created using `bun init` in bun v0.1.7. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+This project is used to distribute tokens to users for the Increment beta V2
