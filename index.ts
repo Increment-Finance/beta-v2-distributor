@@ -9,6 +9,7 @@ import { Disperse__factory, ERC20__factory } from "./typechain";
 const DISPERSE_ADDRESS = "0xB430EC1e046005957e19293b838DCD1Cd1a83f9a";
 const TOKEN_ADDRESS = "0xc13e4205390eD4a9b07E109373420A03551d34F1";
 const TOKEN_AMOUNT = parseUnits("100", 18);
+const ETHER_AMOUNT = parseUnits("1", 1);
 const RPC_URL = "https://zksync2-testnet.zksync.dev";
 const STORAGE_FILE = "./DISTRIBUTIONS.csv";
 const GUILD = "increment";
@@ -77,12 +78,20 @@ function getStoredList(): [string[], string] {
   return [[], ""];
 }
 
-function setStoredList(oldList: string, txHash: string, addresses: string[]) {
+function setStoredList(
+  oldList: string,
+  tokenTxHash: string,
+  etherTxHash: string,
+  addresses: string[]
+) {
   if (addresses.length > 0) {
     const content = `${oldList}${addresses
       .toString()
       .replace(/[\"\s]/g, "")
-      .replace(/[\,]/g, `,${txHash}\n`)},${txHash}\n`;
+      .replace(
+        /[\,]/g,
+        `,${tokenTxHash},${etherTxHash}\n`
+      )},${tokenTxHash},${etherTxHash}\n`;
     writeFileSync(STORAGE_FILE, content);
   }
 }
@@ -97,6 +106,19 @@ async function disperseTokens(signer: Signer, recipients: string[]) {
   );
   const { transactionHash } = await tx.wait();
   console.log("Tokens dispersed in tx:", transactionHash);
+  return transactionHash;
+}
+
+async function disperseEther(signer: Signer, recipients: string[]) {
+  const disperse = Disperse__factory.connect(DISPERSE_ADDRESS, signer);
+  console.log("Dispersing Ether...");
+  const tx = await disperse.disperseEther(
+    recipients,
+    Array(recipients.length).fill(ETHER_AMOUNT),
+    { value: ETHER_AMOUNT.mul(recipients.length) }
+  );
+  const { transactionHash } = await tx.wait();
+  console.log("Ether dispersed in tx:", transactionHash);
   return transactionHash;
 }
 
@@ -130,11 +152,12 @@ async function main(): Promise<void> {
     console.error("Failed to approve token " + TOKEN_ADDRESS, err);
   }
   if (newUsers.length > 0) {
-    console.log({ newUsers });
-    const txHash = await disperseTokens(wallet, newUsers);
+    const tokensTxHash = await disperseTokens(wallet, newUsers);
+    const etherTxHash = await disperseEther(wallet, newUsers);
     setStoredList(
       rawText,
-      `https://zksync2-testnet.zkscan.io/tx/${txHash}`,
+      `https://zksync2-testnet.zkscan.io/tx/${tokensTxHash}`,
+      `https://zksync2-testnet.zkscan.io/tx/${etherTxHash}`,
       newUsers
     );
   }
