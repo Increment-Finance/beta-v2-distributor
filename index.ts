@@ -79,12 +79,12 @@ function getStoredList(): [string[], string] {
 }
 
 function setStoredList(
-  oldList: string,
   tokenTxHash: string,
   etherTxHash: string,
   addresses: string[]
 ) {
   if (addresses.length > 0) {
+    const oldList = getStoredList()[1];
     const content = `${oldList}${addresses
       .toString()
       .replace(/[\"\s]/g, "")
@@ -133,7 +133,7 @@ async function main(): Promise<void> {
   if (!storedList || !rawText) {
     console.error(`Error: Could not read stored list from ${STORAGE_FILE}`);
   }
-  const newUsers = [
+  let newUsers = [
     ...guildList.filter(
       (address: string) => storedList.indexOf(address) === -1
     ),
@@ -151,14 +151,15 @@ async function main(): Promise<void> {
   } catch (err) {
     console.error("Failed to approve token " + TOKEN_ADDRESS, err);
   }
-  if (newUsers.length > 0) {
-    const tokensTxHash = await disperseTokens(wallet, newUsers);
-    const etherTxHash = await disperseEther(wallet, newUsers);
+  while (newUsers.length > 0) {
+    const list = newUsers.slice(0, 100);
+    newUsers = newUsers.slice(100);
+    const tokensTxHash = await disperseTokens(wallet, list);
+    const etherTxHash = await disperseEther(wallet, list);
     setStoredList(
-      rawText,
       `https://zksync2-testnet.zkscan.io/tx/${tokensTxHash}`,
       `https://zksync2-testnet.zkscan.io/tx/${etherTxHash}`,
-      newUsers
+      list
     );
   }
 }
