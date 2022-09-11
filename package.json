@@ -14,7 +14,7 @@
   },
   "scripts": {
     "typechain": "typechain --target ethers-v5 --out-dir typechain './abis/*'",
-    "postinstall": "typechain",
+    "postinstall": "yarn typechain",
     "disperse": "ts-node index.ts"
   }
 }
