@@ -32,3 +32,6 @@ jobs:
 
       - name: Push Changes
         uses: actions-x/commit@v6
+        with:
+          name: "Github Actions Distributor"
+          message: "Automatic distribution"
