@@ -6,7 +6,7 @@ on:
     - cron: "0 0 * * *"
 
 jobs:
-  site-deploy:
+  distribute:
     runs-on: ubuntu-latest
 
     defaults:
