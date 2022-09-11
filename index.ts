@@ -6,10 +6,10 @@ import "dotenv/config";
 
 import { Disperse__factory, ERC20__factory } from "./typechain";
 
-const DISPERSE_ADDRESS = "0xB430EC1e046005957e19293b838DCD1Cd1a83f9a";
-const TOKEN_ADDRESS = "0xc13e4205390eD4a9b07E109373420A03551d34F1";
-const TOKEN_AMOUNT = parseUnits("100", 18);
-const ETHER_AMOUNT = parseUnits("1", 1);
+const DISPERSE_ADDRESS = "0xAE9F07592c594Af23A777243216012b30D836ee8";
+const TOKEN_ADDRESS = "0x5869D66F7d9269F39B0f665CcBb096aC9BB3D38F";
+const TOKEN_AMOUNT = parseUnits("500", 18);
+const ETHER_AMOUNT = parseUnits("2", 15);
 const RPC_URL = "https://zksync2-testnet.zksync.dev";
 const STORAGE_FILE = "./DISTRIBUTIONS.csv";
 const GUILD = "increment";
@@ -115,7 +115,7 @@ async function disperseEther(signer: Signer, recipients: string[]) {
   const tx = await disperse.disperseEther(
     recipients,
     Array(recipients.length).fill(ETHER_AMOUNT),
-    { value: ETHER_AMOUNT.mul(recipients.length) }
+    { value: ETHER_AMOUNT.mul(recipients.length), type: 0 }
   );
   const { transactionHash } = await tx.wait();
   console.log("Ether dispersed in tx:", transactionHash);
